@@ -1,4 +1,4 @@
-export const adress = 'https://poe-flip.helpless.keenetic.link'
+export const adress = 'https://37.140.198.168'
 export const keys = {
   poeninja: 'poeninja',
   poeTrade: 'poeTrade',

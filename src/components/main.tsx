@@ -1,4 +1,4 @@
-import { Button, Checkbox, Link } from '@mui/material'
+import { Button, Checkbox, Link, TextField } from '@mui/material'
 import { Box } from '@mui/system'
 import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid'
 import React, { useState } from 'react'
@@ -95,21 +95,22 @@ const columns: GridColDef[] = [
 export const Main: React.FC<MainProps> = ({ isLocalServer, changeLocal }) => {
   const [rows, setRows] = useState<object[]>([])
 
-  const [nextUpdateData, setNextUpdateData] = useState<Date | undefined>()
-  const [lastUpdateData, setlastUpdateData] = useState<Date | undefined>()
+  // const [nextUpdateData, setNextUpdateData] = useState<Date | undefined>()
+  const [poesessid, setPoesessid] = useState<string>('')
+  const [lastUpdateData, setLastUpdateData] = useState<Date | undefined>()
   const [isCanUpdatePoeTrade, setIsCanUpdatePoeTrade] = useState<boolean>(false)
   const [isFetch, setIsFetch] = useState<boolean>(false)
   const setAllState = (values: FetchServerData, key: string): void => {
     localStorage.setItem(key, JSON.stringify(values))
     setRows(values.rows)
-    setNextUpdateData(new Date(values.canNextUpdate))
-    setlastUpdateData(new Date(values.lastUpdate))
+    // setNextUpdateData(new Date(values.canNextUpdate))
+    setLastUpdateData(new Date(values.lastUpdate))
     setIsCanUpdatePoeTrade(values.canUpdate)
   }
 
-  const hendlerPoeTradeGetData = async () => {
+  const handlePoeTradeGetData = async () => {
     setIsFetch(true)
-    await fetch(`${isLocalServer ? 'http://localhost:8080' : 'https://poe-flip.helpless.keenetic.link'}/poeTrade`, {
+    await fetch(`${isLocalServer ? 'http://localhost:8080' : adress}/poeTrade`, {
       headers: {
         'Content-Type': 'application/json'
       }
@@ -126,14 +127,15 @@ export const Main: React.FC<MainProps> = ({ isLocalServer, changeLocal }) => {
       })
     setIsFetch(false)
   }
-  const hendlerPoeTradeUpdate = async () => {
+  const handlerPoeTradeUpdate = async () => {
     setIsFetch(true)
     setIsCanUpdatePoeTrade(false)
     await fetch(`${isLocalServer ? 'http://localhost:8080' : adress}/update`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
-      }
+      },
+      body: JSON.stringify({ poesessid })
     })
       .then((res) => res.json())
       .then((json) => {
@@ -145,7 +147,7 @@ export const Main: React.FC<MainProps> = ({ isLocalServer, changeLocal }) => {
     setIsFetch(false)
   }
 
-  const hendlerPoeNinjaUpdate = async () => {
+  const handlerPoeNinjaUpdate = async () => {
     setIsFetch(true)
     await fetch(`${isLocalServer ? 'http://localhost:8080' : adress}/ninja`, {
       method: 'POST',
@@ -167,13 +169,13 @@ export const Main: React.FC<MainProps> = ({ isLocalServer, changeLocal }) => {
   return (
     <Box sx={{ width: '100%', height: '100vh' }}>
       <Box display="flex" justifyContent="flex-start" alignItems="center">
-        <Button onClick={hendlerPoeNinjaUpdate} disabled={isFetch}>
+        <Button onClick={handlerPoeNinjaUpdate} disabled={isFetch}>
           load and update poeninja
         </Button>
-        <Button onClick={hendlerPoeTradeGetData} disabled={isFetch}>
+        <Button onClick={handlePoeTradeGetData} disabled={isFetch}>
           load poe trade
         </Button>
-        <Button onClick={hendlerPoeTradeUpdate} disabled={!isCanUpdatePoeTrade || isFetch}>
+        <Button onClick={handlerPoeTradeUpdate} disabled={!isCanUpdatePoeTrade || isFetch}>
           update poe trade
         </Button>
         <Box marginLeft={2}>
@@ -183,10 +185,17 @@ export const Main: React.FC<MainProps> = ({ isLocalServer, changeLocal }) => {
         </Box>
 
         <Box marginLeft={2} flexGrow={1}>
-          {nextUpdateData
-            ? `Can next update --- ${nextUpdateData?.getHours()}:${nextUpdateData?.getMinutes()}:${nextUpdateData?.getSeconds()}`
-            : null}
+          <TextField
+            id="filled-poesessid"
+            label="poesessid"
+            variant="filled"
+            value={poesessid}
+            onChange={(e) => {
+              setPoesessid(e.target.value)
+            }}
+          />
         </Box>
+
         <Button component={NavLink} to="/change-queries">
           change queries
         </Button>
